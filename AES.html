@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>AES Sample</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script type="text/javascript" src="dojo/dojo/dojo.js" djconfig="parseOnLoad:true"></script>
+    <script type="text/javascript" src="Crypto-JS/crypto/crypto-min.js"></script>
+    <script type="text/javascript" src="Crypto-JS/blockmodes/blockmodes-min.js"></script>
+    <script type="text/javascript" src="Crypto-JS/pbkdf2/pbkdf2-min.js"></script>
+    <!--<script type="text/javascript" src="Crypto-JS/hmac/hmac-min.js"></script>-->
+    <script type="text/javascript" src="Crypto-JS/crypto-sha1-hmac/crypto-sha1-hmac.js"></script>
+    <script type="text/javascript" src="Crypto-JS/aes/aes-min.js"></script>
+    <script type="text/javascript">
+        dojo.require("dijit.form.TextBox");
+        dojo.require("dijit.form.Button");
+        
+        function encryptMessage()
+        {
+            var msg = dijit.byId("txtMessage").get("value");
+            var pwd = dijit.byId("txtPasswd").get("value");
+            var iv = dijit.byId("txtIV").get("value");
+
+            console.log(msg);
+            console.log(pwd);
+            
+            var cryptedMsg = Crypto.AES.encrypt(
+                    Crypto.charenc.UTF8.stringToBytes(dojo.trim(msg)),
+                    Crypto.charenc.UTF8.stringToBytes(dojo.trim(pwd)),
+                    {
+                        mode: new Crypto.mode.CBC(Crypto.pad.ansix923),
+                        iv: Crypto.charenc.UTF8.stringToBytes(dojo.trim(iv)) });
+
+            var displayMsg = dojo.byId("encryptedMessage");
+
+            displayMsg.innerHTML = displayMsg.innerHTML + cryptedMsg + "<BR/>>"
+        }
+    </script>
+    <style type="text/css">
+        @import "dojo/dijit/themes/tundra/tundra.css";
+    </style>
+</head>
+<body class="tundra">
+    <label for="txtMessage">Message
+        <input type="text" id="txtMessage" dojoType="dijit.form.TextBox" />
+    </label>
+    <label for="txtPasswd">Password
+        <input type="text" id="txtPasswd" dojoType="dijit.form.TextBox" />
+    </label>
+    <label for="txtIV">IV
+        <input type="text" id="txtIV" dojoType="dijit.form.TextBox" />
+    </label>
+    <button dojoType="dijit.form.Button" type="button" id="btnEncrypt" onclick="encryptMessage()">Encrypt</button>
+    <hr/>
+    <div id="encryptedMessage">></div>
+</body>
+</html>
