@@ -35,7 +35,6 @@ namespace ConsoleApplication1
             {
 
                 Encrypted_Bytes = rijndaelKey.EncryptToBytes(Plain_Text);
-                //Encrypted_Bytes = encrypt_function(Plain_Text, Pwd_Text, IV_Text);
 
                 Encrypted_Text = Convert.ToBase64String(Encrypted_Bytes);
                 //Decrypted = decrypt_function(Encrypted_Bytes, Encoding.UTF8.GetBytes(Pwd_Text), Encoding.UTF8.GetBytes(IV_Text));
@@ -54,103 +53,26 @@ namespace ConsoleApplication1
             Console.ReadKey();
         }
 
+        internal static string FormatByteArray(byte[] b)
+        {
+            System.Text.StringBuilder sb1 = new System.Text.StringBuilder();
+            int i = 0;
+            for (i = 0; i < b.Length; i++)
+            {
+                if (i != 0 && i % 16 == 0)
+                    sb1.Append("\n");
+                sb1.Append(System.String.Format("{0:X2} ", b[i]));
+            }
+            return sb1.ToString();
+        }
+
+
         private static byte[] StringToByteArray(string hex)
         {
             return Enumerable.Range(0, hex.Length)
                              .Where(x => x % 2 == 0)
                              .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
                              .ToArray();
-        }
-
-
-        private static byte[] encrypt_function(string Plain_Text, string Key, string Vector)
-        {
-            Byte[] Data = Encoding.UTF8.GetBytes(Plain_Text);
-
-            Byte[] bKey = new Byte[32];
-            //Console.WriteLine(Encoding.UTF8.GetBytes(Key).Length);
-            Array.Copy(Encoding.UTF8.GetBytes(Key.PadRight(bKey.Length)), bKey, bKey.Length);
-            //bKey = Encoding.UTF8.GetBytes(Key);
-            Byte[] bVector = new Byte[16];
-            Console.WriteLine(Encoding.UTF8.GetBytes(Vector).Length);
-            Array.Copy(Encoding.UTF8.GetBytes(Vector.PadRight(bVector.Length)), bVector, bVector.Length);
-            //bVector = Encoding.UTF8.GetBytes(Vector);
-
-            Byte[] Cryptograph = null; // 加密后的密文
-
-            Aes aes = new AesManaged();
-
-            aes.Mode = CipherMode.CBC;
-            aes.Padding = PaddingMode.ANSIX923;
-            aes.KeySize = 32;
-            aes.Key = bKey;
-            aes.IV = bVector;
-
-            try
-            {
-                // 开辟一块内存流
-                using (MemoryStream Memory = new MemoryStream())
-                {
-                    // 把内存流对象包装成加密流对象
-                    using (CryptoStream Encryptor = new CryptoStream(Memory, aes.CreateEncryptor(), CryptoStreamMode.Write))
-                    {
-                        // 明文数据写入加密流
-                        Encryptor.Write(Data, 0, Data.Length);
-                        //Encryptor.FlushFinalBlock();
-
-                        Memory.Seek(0, SeekOrigin.Begin);
-
-                        Cryptograph = Memory.ToArray();
-                    }
-                }
-            }
-            catch
-            {
-                Cryptograph = null;
-            }
-
-            return Cryptograph;
-        }
-
-        private static string decrypt_function(byte[] Cipher_Text, byte[] Key, byte[] IV)
-        {
-            RijndaelManaged Crypto = null;
-            MemoryStream MemStream = null;
-            ICryptoTransform Decryptor = null;
-            CryptoStream Crypto_Stream = null;
-            StreamReader Stream_Read = null;
-            string Plain_Text;
-
-            try
-            {
-                Crypto = new RijndaelManaged();
-                //Crypto.Key = Key;
-                //Crypto.IV = IV;
-                Crypto.Mode = CipherMode.CBC;
-                Crypto.Padding = PaddingMode.ANSIX923;
-
-                MemStream = new MemoryStream(Cipher_Text);
-
-                //Create Decryptor make sure if you are decrypting that this is here and you did not copy paste encryptor.
-                Decryptor = Crypto.CreateDecryptor(Key, IV);
-
-                //This is different from the encryption look at the mode make sure you are reading from the stream.
-                Crypto_Stream = new CryptoStream(MemStream, Decryptor, CryptoStreamMode.Read);
-
-                //I used the stream reader here because the ReadToEnd method is easy and because it return a string, also easy.
-                Stream_Read = new StreamReader(Crypto_Stream);
-                Plain_Text = Stream_Read.ReadToEnd();
-            }
-            finally
-            {
-                if (Crypto != null)
-                    Crypto.Clear();
-
-                MemStream.Flush();
-                MemStream.Close();
-
-            }
-            return Plain_Text;
         }
     }
 }

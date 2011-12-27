@@ -417,30 +417,43 @@ namespace ConsoleApplication1
             //                                           hashAlgorithm,
             //                                           passwordIterations);
 
-            Rfc2898DeriveBytes password = new Rfc2898DeriveBytes(passPhrase,
-                initVectorBytes,
-                32);
+            //Rfc2898DeriveBytes password = new Rfc2898DeriveBytes(passPhrase,
+            //    initVectorBytes,
+            //    32);
 
             // Convert key to a byte array adjusting the size from bits to bytes.
             //byte[] keyBytes = password.GetBytes(keySize / 8);
-            byte[] keyBytes = Encoding.UTF8.GetBytes(passPhrase);
+            byte[] keyBytes = Encoding.UTF8.GetBytes(passPhrase.PadRight(32));
+
+            RijndaelManaged myRijndael = new RijndaelManaged();
+            myRijndael.BlockSize = 128;
+            myRijndael.KeySize = 256;
+            myRijndael.IV = initVectorBytes;
+            myRijndael.Padding = PaddingMode.ANSIX923;
+            myRijndael.Mode = CipherMode.CBC;
+            myRijndael.Key = keyBytes;
 
             // Initialize Rijndael key object.
-            RijndaelManaged symmetricKey = new RijndaelManaged();
+            //AesManaged symmetricKey = new AesManaged();
 
             // If we do not have initialization vector, we cannot use the CBC mode.
             // The only alternative is the ECB mode (which is not as good).
-            if (initVectorBytes.Length == 0)
-                symmetricKey.Mode = CipherMode.ECB;
-            else
-                symmetricKey.Mode = CipherMode.CBC;
+            //if (initVectorBytes.Length == 0)
+            //    symmetricKey.Mode = CipherMode.ECB;
+            //else
+            //    symmetricKey.Mode = CipherMode.CBC;
 
-            symmetricKey.Padding = PaddingMode.ANSIX923;
+            //symmetricKey.Padding = PaddingMode.ANSIX923;
+
+            Console.WriteLine(string.Join(",", keyBytes));
+            Console.WriteLine(string.Join(",", initVectorBytes));
 
             // Create encryptor and decryptor, which we will use for cryptographic
             // operations.
-            encryptor = symmetricKey.CreateEncryptor(keyBytes, initVectorBytes);
-            decryptor = symmetricKey.CreateDecryptor(keyBytes, initVectorBytes);
+            //encryptor = symmetricKey.CreateEncryptor(keyBytes, initVectorBytes);
+            //decryptor = symmetricKey.CreateDecryptor(keyBytes, initVectorBytes);
+            encryptor = myRijndael.CreateEncryptor();
+            decryptor = myRijndael.CreateDecryptor();
         }
         #endregion
 
@@ -484,6 +497,7 @@ namespace ConsoleApplication1
         /// </returns>
         public byte[] EncryptToBytes(string plainText)
         {
+            Console.WriteLine(String.Join(",", Encoding.UTF8.GetBytes(plainText)));
             return EncryptToBytes(Encoding.UTF8.GetBytes(plainText));
         }
 
@@ -499,7 +513,8 @@ namespace ConsoleApplication1
         public byte[] EncryptToBytes(byte[] plainTextBytes)
         {
             // Add salt at the beginning of the plain text bytes (if needed).
-            byte[] plainTextBytesWithSalt = AddSalt(plainTextBytes);
+            //byte[] plainTextBytesWithSalt = AddSalt(plainTextBytes);
+            byte[] plainTextBytesWithSalt = plainTextBytes;
 
             // Encryption will be performed using memory stream.
             MemoryStream memoryStream = new MemoryStream();
