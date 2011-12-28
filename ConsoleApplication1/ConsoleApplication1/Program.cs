@@ -40,6 +40,8 @@ namespace ConsoleApplication1
                 //Decrypted = decrypt_function(Encrypted_Bytes, Encoding.UTF8.GetBytes(Pwd_Text), Encoding.UTF8.GetBytes(IV_Text));
 
                 Console.WriteLine("Start: {0}", Plain_Text);
+                Console.WriteLine("Key: {0}", Pwd_Text);
+                Console.WriteLine("IV: {0}", IV_Text);
                 Console.WriteLine("Encrypted: {0}", Encrypted_Text);
                 //Console.WriteLine("Decrypted: {0}", Decrypted);
 

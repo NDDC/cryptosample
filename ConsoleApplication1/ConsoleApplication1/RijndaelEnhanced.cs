@@ -445,9 +445,6 @@ namespace ConsoleApplication1
 
             //symmetricKey.Padding = PaddingMode.ANSIX923;
 
-            Console.WriteLine(string.Join(",", keyBytes));
-            Console.WriteLine(string.Join(",", initVectorBytes));
-
             // Create encryptor and decryptor, which we will use for cryptographic
             // operations.
             //encryptor = symmetricKey.CreateEncryptor(keyBytes, initVectorBytes);
@@ -497,7 +494,6 @@ namespace ConsoleApplication1
         /// </returns>
         public byte[] EncryptToBytes(string plainText)
         {
-            Console.WriteLine(String.Join(",", Encoding.UTF8.GetBytes(plainText)));
             return EncryptToBytes(Encoding.UTF8.GetBytes(plainText));
         }
 
@@ -513,8 +509,8 @@ namespace ConsoleApplication1
         public byte[] EncryptToBytes(byte[] plainTextBytes)
         {
             // Add salt at the beginning of the plain text bytes (if needed).
-            //byte[] plainTextBytesWithSalt = AddSalt(plainTextBytes);
-            byte[] plainTextBytesWithSalt = plainTextBytes;
+            byte[] plainTextBytesWithSalt = AddSalt(plainTextBytes);
+            //byte[] plainTextBytesWithSalt = plainTextBytes;
 
             // Encryption will be performed using memory stream.
             MemoryStream memoryStream = new MemoryStream();
@@ -720,6 +716,8 @@ namespace ConsoleApplication1
             // Use random number generator to calculate salt length.
             else
                 saltLen = GenerateRandomNumber(minSaltLen, maxSaltLen);
+
+            Console.WriteLine("salt长度：" + saltLen);
 
             // Allocate byte array to hold our salt.
             byte[] salt = new byte[saltLen];

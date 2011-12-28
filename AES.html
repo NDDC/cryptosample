@@ -61,10 +61,6 @@
             var msg = dijit.byId("txtMessage").get("value");
             var pwd = dijit.byId("txtPasswd").get("value");
             var iv = dijit.byId("txtIV").get("value");
-
-            console.log(msg);
-            console.log(pwd);
-            console.log(iv);
             
             var cryptedMsg = Crypto.AES.encrypt(
                     Crypto.charenc.UTF8.stringToBytes(dojo.trim(msg)),
@@ -72,10 +68,6 @@
                     {
                         mode: new Crypto.mode.CBC(Crypto.pad.ansix923),
                         iv: Crypto.charenc.UTF8.stringToBytes(dojo.trim(iv)) });
-
-            console.log(Crypto.charenc.UTF8.stringToBytes(dojo.trim(msg)));
-            console.log(Crypto.charenc.UTF8.stringToBytes(dojo.trim(pwd).toString().PadRight(32, ' ')));
-            console.log(Crypto.charenc.UTF8.stringToBytes(dojo.trim(iv)));
 
             var displayMsg = dojo.byId("encryptedMessage");
 
@@ -87,6 +79,43 @@
             dijit.byId("txtMessage").set("value", "test");
             dijit.byId("txtPasswd").set("value", "12345678");
             dijit.byId("txtIV").set("value", "fangjie000000000");
+        }
+
+        function decryptMessage()
+        {
+            var msg = dijit.byId("txtMessage").get("value");
+            var pwd = dijit.byId("txtPasswd").get("value");
+            var iv = dijit.byId("txtIV").get("value");
+
+            var descryptedMsg = dijit.byId("txtDescrypted").get("value");
+
+            var plainMsg = Crypto.AES.decrypt(
+                    dojo.trim(descryptedMsg),
+                    Crypto.charenc.UTF8.stringToBytes(dojo.trim(pwd).toString().PadRight(32, ' ')),
+                    {
+                        mode: new Crypto.mode.CBC(Crypto.pad.ansix923),
+                        iv: Crypto.charenc.UTF8.stringToBytes(dojo.trim(iv)),
+                        asBytes: true
+                    }
+            );
+
+            console.log(plainMsg);
+
+            var saltLen = (plainMsg[0] & 0x03) | (plainMsg[1] & 0x0c) | (plainMsg[2] & 0x30) | (plainMsg[3] & 0xc0);
+
+            console.log(saltLen);
+
+            var truePlains = new Array();
+
+            var index = 0;
+            for(var i=saltLen; i < plainMsg.length; i++)
+            {
+                truePlains[index] = plainMsg[i];
+                index++;
+            }
+
+            var displayMsg = dojo.byId("decryptedMessage");
+            displayMsg.innerHTML = displayMsg.innerHTML + Crypto.charenc.UTF8.bytesToString(truePlains) + "<BR/>>"
         }
 
         dojo.ready(init);
@@ -108,5 +137,12 @@
     <button dojoType="dijit.form.Button" type="button" id="btnEncrypt" onclick="encryptMessage()">Encrypt</button>
     <hr/>
     <div id="encryptedMessage">></div>
+    <hr/>
+    <label for="txtDescrypted">Descrypted From Server
+        <input type="text" id="txtDescrypted" dojoType="dijit.form.TextBox" />
+    </label>
+    <button dojoType="dijit.form.Button" type="button" id="btnDescrypt" onclick="decryptMessage()">Descrypt</button>
+    <hr/>
+    <div id="decryptedMessage">></div>
 </body>
 </html>
